@@ -1,0 +1,51 @@
+﻿@model WhitelistExecuter.Web.Models.HomeModel
+@{
+    ViewBag.Title = "Home Page";
+}
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title.</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+            <p>
+            </p>
+        </div>
+    </section>
+}
+<h3>Commands:</h3>
+
+@using (Html.BeginForm("ExecuteCommand", "Home")) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    <fieldset>
+        <legend>Registration Form</legend>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.RelativePath)
+                @Html.TextBoxFor(m => m.RelativePath)
+            </li>
+            <li>
+                @Html.LabelFor(m=> m.Command)
+                @Html.DropDownListFor(m => m.Command, Model.Commands)
+            </li>
+        </ol>
+        <input type="submit" value="Register" />
+    </fieldset>
+}
+@if (null != Model.Error)
+{
+    <h3>Error:</h3>
+    <pre>@Model.Error</pre>
+}
+else {
+    <h3>Standard Output:</h3>
+    <pre>@Model.StandardOutput</pre>
+    <h3>Standard Error:</h3>
+    <pre>@Model.StandardError</pre>
+}
+    
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
