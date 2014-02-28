@@ -13,8 +13,6 @@ namespace WhitelistExecuter.Web.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Whitelist Executer.";
-
             return View(new HomeModel());
         }
 
