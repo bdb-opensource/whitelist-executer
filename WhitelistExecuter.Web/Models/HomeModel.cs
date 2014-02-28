@@ -11,7 +11,7 @@ namespace WhitelistExecuter.Web.Models
     public class HomeModel
     {
         [Required]
-        public Command Command;
+        public Command Command { get; set; }
 
         [Required]
         [Display(Name = "Relative path")]
@@ -21,16 +21,5 @@ namespace WhitelistExecuter.Web.Models
         public string StandardOutput { get; set; }
         public string StandardError { get; set; }
         
-        public IEnumerable<SelectListItem> Commands
-        {
-            get
-            {
-                var commands = 
-                    Enum.GetValues(typeof(Command))
-                        .Cast<Command>()
-                        .Select(d =>  new { ID = (int)d, Name = d.ToString() });
-                return new SelectList(commands, "ID", "Name", this.Command);
-            }
-        }
     }
 }

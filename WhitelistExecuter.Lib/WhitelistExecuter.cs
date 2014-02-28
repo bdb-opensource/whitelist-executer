@@ -21,7 +21,7 @@ namespace WhitelistExecuter.Lib
 
             public const string GIT_EXE = "GitExe";
 
-            public const string PROCESS_TIMEOUT = "ProcessTimeout";
+            public const string PROCESS_TIMEOUT_SECONDS = "ProcessTimeoutSeconds";
         }
 
         #region IExecuter Members
@@ -48,24 +48,32 @@ namespace WhitelistExecuter.Lib
 
         private ExecutionResult RunGit(string args)
         {
-            var process = Process.Start(ConfigurationManager.AppSettings[AppKeys.GIT_EXE], args);
-            process.WaitForExit(Int32.Parse(ConfigurationManager.AppSettings[AppKeys.PROCESS_TIMEOUT]));
-            process.Close();
-            var stdOut = process.StandardOutput.ReadToEnd();
-            var stdError = process.StandardError.ReadToEnd();
-            if (false == process.HasExited)
+            var startInfo = new ProcessStartInfo(ConfigurationManager.AppSettings[AppKeys.GIT_EXE], args)
             {
-                _logger.Error("Timeout when running: git " + args + " in directory " + Directory.GetCurrentDirectory());
-                _logger.Error("Execution stdout:" + stdOut);
-                _logger.Error("Execution stderr:" + stdError);
-                throw new Exception("Execution timed out: git " + args);
-            }
-            return new ExecutionResult
-            {
-                StandardError = stdError,
-                StandardOutput = stdOut,
-                ExitCode = process.ExitCode
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true
             };
+            using (var process = Process.Start(startInfo))
+            {
+                var hasExited = process.WaitForExit(1000 * Int32.Parse(ConfigurationManager.AppSettings[AppKeys.PROCESS_TIMEOUT_SECONDS]));
+                var stdOut = process.StandardOutput.ReadToEnd();
+                var stdError = process.StandardError.ReadToEnd();
+                if (false == hasExited)
+                {
+                    _logger.Error("Timeout when running: git " + args + " in directory " + Directory.GetCurrentDirectory());
+                    _logger.Error("Execution stdout:" + stdOut);
+                    _logger.Error("Execution stderr:" + stdError);
+                    throw new Exception("Execution timed out: git " + args);
+                }
+                return new ExecutionResult
+                {
+                    StandardError = stdError,
+                    StandardOutput = stdOut,
+                    ExitCode = process.ExitCode
+                };
+            }
         }
     }
 }

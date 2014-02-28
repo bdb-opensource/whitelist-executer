@@ -1,4 +1,7 @@
-﻿@model WhitelistExecuter.Web.Models.HomeModel
+﻿@using WhitelistExecuter.Web.Extensions
+@model WhitelistExecuter.Web.Models.HomeModel
+
+
 @{
     ViewBag.Title = "Home Page";
 }
@@ -28,7 +31,7 @@
             </li>
             <li>
                 @Html.LabelFor(m=> m.Command)
-                @Html.DropDownListFor(m => m.Command, Model.Commands)
+                @Html.EnumDropDownListFor(m => m.Command)
             </li>
         </ol>
         <input type="submit" value="Register" />
