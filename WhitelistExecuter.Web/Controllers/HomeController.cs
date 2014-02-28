@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using WhitelistExecuter.Lib;
+using WhitelistExecuter.Web.Filters;
 using WhitelistExecuter.Web.Models;
 
 namespace WhitelistExecuter.Web.Controllers
@@ -17,6 +18,7 @@ namespace WhitelistExecuter.Web.Controllers
             return View(new HomeModel());
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult ExecuteCommand(HomeModel model)
         {
