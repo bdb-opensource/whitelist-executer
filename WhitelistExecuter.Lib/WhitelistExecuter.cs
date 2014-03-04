@@ -81,7 +81,6 @@ namespace WhitelistExecuter.Lib
                                   .Select(x =>
                                       String.Join(Path.DirectorySeparatorChar.ToString(),
                                                   ParentsUpTo(x, baseDirInfo).Reverse().Select(p => p.Name)))
-                                  .Where(x => false == String.IsNullOrWhiteSpace(x))
                                   .ToArray());
             }
             return result;

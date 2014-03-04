@@ -18,7 +18,6 @@ namespace WhitelistExecuter.Web.Models
         public string BaseDir { get; set; }
         public SelectListItem[] AvailableBaseDirs { get; set; }
 
-        [Required]
         [Display(Name = "Relative path")]
         public string RelativePath { get; set; }
         public SelectListItem[] AvailableRelativePaths { get; set; }

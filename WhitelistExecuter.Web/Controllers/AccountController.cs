@@ -73,9 +73,13 @@ namespace WhitelistExecuter.Web.Controllers
         //
         // GET: /Account/Register
 
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public ActionResult Register()
         {
+            if (false == AnonymousRegistrationAllowed())
+            {
+                WebSecurity.RequireAuthenticatedUser();
+            }
             return View();
         }
 
@@ -91,7 +95,7 @@ namespace WhitelistExecuter.Web.Controllers
             {
                 if (false == WebSecurity.IsAuthenticated)
                 {
-                    if (false == ConfigurationManager.AppSettings[APP_KEY_SETTING_ALLOW_ANON_REGISTER].Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                    if (false == AnonymousRegistrationAllowed())
                     {
                         WebSecurity.RequireAuthenticatedUser();
                         return View();
@@ -112,6 +116,11 @@ namespace WhitelistExecuter.Web.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        private static bool AnonymousRegistrationAllowed()
+        {
+            return ConfigurationManager.AppSettings[APP_KEY_SETTING_ALLOW_ANON_REGISTER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
         }
 
         //

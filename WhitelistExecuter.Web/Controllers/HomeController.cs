@@ -70,6 +70,11 @@ namespace WhitelistExecuter.Web.Controllers
         {
             UpdateAvailableOptions(model);
 
+            if (String.IsNullOrWhiteSpace(model.RelativePath))
+            {
+                model.RelativePath = String.Empty;
+            }
+
             using (var client = new WhitelistExecuterClient())
             {
                 ExecutionResult result;
