@@ -4,9 +4,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
 using log4net;
 
 namespace WhitelistExecuter.Lib
@@ -24,11 +21,12 @@ namespace WhitelistExecuter.Lib
             public const string PROCESS_TIMEOUT_SECONDS = "ProcessTimeoutSeconds";
         }
 
-        #region IExecuter Members
+        #region IWhitelistExecuter Members
 
         public ExecutionResult ExecuteCommand(Command command, string relativeWorkingDir)
         {
             var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
+            Directory.SetCurrentDirectory(baseDir);
             var absPath = Path.GetFullPath(Path.Combine(baseDir, relativeWorkingDir));
             if ((false == absPath.StartsWith(baseDir)) || (Path.IsPathRooted(relativeWorkingDir)))
             {
@@ -44,9 +42,20 @@ namespace WhitelistExecuter.Lib
                     throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
             }
         }
+
+        public string[] GetPaths()
+        {
+            var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
+            Directory.SetCurrentDirectory(baseDir);
+            var baseDirInfo = new DirectoryInfo(baseDir);
+            return baseDirInfo.GetDirectories().Select(x => x.Name).ToArray();
+        }
+
         #endregion
 
-        private ExecutionResult RunGit(string args)
+        #region Protected Methods
+
+        protected ExecutionResult RunGit(string args)
         {
             var startInfo = new ProcessStartInfo(ConfigurationManager.AppSettings[AppKeys.GIT_EXE], args)
             {
@@ -75,5 +84,7 @@ namespace WhitelistExecuter.Lib
                 };
             }
         }
+
+        #endregion
     }
 }

@@ -30,7 +30,7 @@
         <ol>
             <li>
                 @Html.LabelFor(m => m.RelativePath)
-                @Html.TextBoxFor(m => m.RelativePath)
+                @Html.DropDownListFor(m => m.RelativePath, new SelectList(Model.AvailableRelativePaths, "Value", "Text"))
             </li>
             <li>
                 @Html.LabelFor(m => m.Command)

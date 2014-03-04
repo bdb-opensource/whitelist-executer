@@ -17,9 +17,10 @@ namespace WhitelistExecuter.Web.Models
         [Display(Name = "Relative path")]
         public string RelativePath { get; set; }
 
+        public SelectListItem[] AvailableRelativePaths { get; set; }
+
         public string Error { get; set; }
         public string StandardOutput { get; set; }
         public string StandardError { get; set; }
-        
     }
 }

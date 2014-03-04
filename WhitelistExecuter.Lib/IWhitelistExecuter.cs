@@ -13,6 +13,9 @@ namespace WhitelistExecuter.Lib
     {
         [OperationContract]
         ExecutionResult ExecuteCommand(Command command, string relativeWorkingDir);
+
+        [OperationContract]
+        string[] GetPaths();
     }
 
 
