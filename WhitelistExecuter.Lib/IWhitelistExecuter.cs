@@ -12,10 +12,10 @@ namespace WhitelistExecuter.Lib
     public interface IWhitelistExecuter
     {
         [OperationContract]
-        ExecutionResult ExecuteCommand(Command command, string relativeWorkingDir);
+        ExecutionResult ExecuteCommand(string baseDir, Command command, string relativeWorkingDir);
 
         [OperationContract]
-        string[] GetPaths();
+        List<KeyValuePair<string, string[]>> GetPaths();
     }
 
 

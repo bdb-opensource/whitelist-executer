@@ -10,13 +10,15 @@ namespace WhitelistExecuter.Lib
 {
     public class WhitelistExecuter : IWhitelistExecuter
     {
-        protected static ILog _logger = log4net.LogManager.GetLogger("Executer");
+        protected static readonly ILog _logger = log4net.LogManager.GetLogger("Executer");
 
-        protected static string[] _paths = GetPathsFromFilesystem();
+        protected static readonly string[] _allowedBaseDirs = AllowedBaseDirs();
+
+        protected static readonly Dictionary<string, string[]> _paths = GetPathsFromFilesystem();
 
         protected class AppKeys
         {
-            public const string BASE_DIR = "BaseDir";
+            public const string BASE_DIRS = "BaseDirs";
 
             public const string GIT_EXE = "GitExe";
 
@@ -25,9 +27,13 @@ namespace WhitelistExecuter.Lib
 
         #region IWhitelistExecuter Members
 
-        public ExecutionResult ExecuteCommand(Command command, string relativeWorkingDir)
+        public ExecutionResult ExecuteCommand(string baseDir, Command command, string relativeWorkingDir)
         {
-            var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
+            if (false == _allowedBaseDirs.Any(x => x.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                throw new ArgumentException("Base dir: " + baseDir + " is not whitelisted.");
+            }
+
             Directory.SetCurrentDirectory(baseDir);
             var absPath = Path.GetFullPath(Path.Combine(baseDir, relativeWorkingDir));
             if ((false == absPath.StartsWith(baseDir)) || (Path.IsPathRooted(relativeWorkingDir)))
@@ -45,30 +51,42 @@ namespace WhitelistExecuter.Lib
             }
         }
 
-        public string[] GetPaths()
+        private static string[] AllowedBaseDirs()
         {
-            return _paths;
+            return ConfigurationManager.AppSettings[AppKeys.BASE_DIRS]
+                .Split(';')
+                .Select(x => x.Trim())
+                .ToArray();
+        }
+
+        public List<KeyValuePair<string, string[]>> GetPaths()
+        {
+            return _paths.Select(x => x).ToList();
         }
 
         #endregion
 
         #region Protected Methods
 
-        protected static string[] GetPathsFromFilesystem()
+        protected static Dictionary<string, string[]> GetPathsFromFilesystem()
         {
-            var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
-            Directory.SetCurrentDirectory(baseDir);
-            var baseDirInfo = new DirectoryInfo(baseDir);
-            return baseDirInfo.GetFileSystemInfos(".git", SearchOption.AllDirectories)
-                              .Select(x => new DirectoryInfo(Path.GetDirectoryName(x.FullName)))
-                              .Select(x =>
-                                  String.Join(Path.DirectorySeparatorChar.ToString(),
-                                              ParentsUpTo(x, baseDirInfo).Reverse().Select(p => p.Name)))
-                              .Where(x => false == String.IsNullOrWhiteSpace(x))
-                              .ToArray();
+            var result = new Dictionary<string, string[]>();
+            foreach (var baseDir in _allowedBaseDirs)
+            {
+                Directory.SetCurrentDirectory(baseDir);
+                var baseDirInfo = new DirectoryInfo(baseDir);
+                result.Add(baseDir,
+                    baseDirInfo.GetFileSystemInfos(".git", SearchOption.AllDirectories)
+                                  .Select(x => new DirectoryInfo(Path.GetDirectoryName(x.FullName)))
+                                  .Select(x =>
+                                      String.Join(Path.DirectorySeparatorChar.ToString(),
+                                                  ParentsUpTo(x, baseDirInfo).Reverse().Select(p => p.Name)))
+                                  .Where(x => false == String.IsNullOrWhiteSpace(x))
+                                  .ToArray());
+            }
+            return result;
         }
 
-        
         protected static IEnumerable<DirectoryInfo> ParentsUpTo(DirectoryInfo subPath, DirectoryInfo basePath)
         {
             var cur = subPath;

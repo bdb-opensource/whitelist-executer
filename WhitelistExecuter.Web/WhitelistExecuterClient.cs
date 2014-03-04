@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Configuration;
 using System.Web;
 using WhitelistExecuter.Lib;
 
@@ -10,12 +11,26 @@ namespace WhitelistExecuter.Web
 {
     public class WhitelistExecuterClient : IDisposable
     {
-        public IWhitelistExecuter API { get; protected set; }
+        public Dictionary<string, IWhitelistExecuter> APIs { get; protected set; }
 
         public WhitelistExecuterClient()
         {
-            var myChannelFactory = new ChannelFactory<IWhitelistExecuter>("WhitelistExecuter.Lib.IWhitelistExecuter");
-            this.API = myChannelFactory.CreateChannel();
+            this.APIs = new Dictionary<string, IWhitelistExecuter>();
+            var names = GetEndpointNames();
+            foreach (var name in names)
+            {
+                var myChannelFactory = new ChannelFactory<IWhitelistExecuter>(name);
+                this.APIs[name] = myChannelFactory.CreateChannel();
+            }
+        }
+
+        public static IEnumerable<string> GetEndpointNames()
+        {
+            ClientSection clientSection = ConfigurationManager.GetSection("system.serviceModel/client") as ClientSection;
+            ChannelEndpointElementCollection endpointCollection =
+                clientSection.ElementInformation.Properties[string.Empty].Value as ChannelEndpointElementCollection;
+            var names = endpointCollection.Cast<ChannelEndpointElement>().Select(x => x.Name);
+            return names;
         }
 
 
@@ -23,11 +38,14 @@ namespace WhitelistExecuter.Web
 
         public void Dispose()
         {
-            if (this.API != null)
+            if (this.APIs != null)
             {
-                ((ICommunicationObject)this.API).Close();
-                ((ICommunicationObject)this.API).Abort();
-                this.API = null;
+                foreach (var api in this.APIs.Values)
+                {
+                    ((ICommunicationObject)api).Close();
+                    ((ICommunicationObject)api).Abort();
+                }
+                this.APIs = null;
             }
         }
 

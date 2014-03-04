@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -14,28 +15,65 @@ namespace WhitelistExecuter.Web.Controllers
     {
         public ActionResult Index()
         {
-            return View(new HomeModel()
+
+            var targets = WhitelistExecuterClient.GetEndpointNames();
+            var targetName = targets.First();
+            return SetTarget(new HomeModel() { Target = targetName });
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult SetTarget(HomeModel model)
+        {
+            return View("Index", GetModelForTarget(model.Target));
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult SetBaseDir(HomeModel model)
+        {
+            var updatedModel = GetModelForTarget(model.Target);
+            if (false == updatedModel.AvailableBaseDirs.Any(x => x.Value.Equals(model.BaseDir, StringComparison.InvariantCultureIgnoreCase))) 
             {
-                AvailableRelativePaths = GetAvailableRelativePaths()
-            });
+                throw new Exception("Base dir does not belong to current target");
+            }
+            updatedModel.BaseDir = model.BaseDir;
+            updatedModel.AvailableRelativePaths = GetAvailableRelativePaths(updatedModel.Target, updatedModel.BaseDir);
+            return View("Index", updatedModel);
+        }
+
+        private static HomeModel GetModelForTarget(string targetName)
+        {
+            var allPaths = GetPaths(targetName);
+            var defaultBaseDir = allPaths[0].Key;
+            var model = new HomeModel()
+            {
+                Target = targetName,
+                BaseDir = defaultBaseDir,
+            };
+            UpdateAvailableOptions(model);
+            return model;
+        }
+
+        private static void UpdateAvailableOptions(HomeModel model)
+        {
+            model.AvailableTargets = ToSelectList(WhitelistExecuterClient.GetEndpointNames());
+            model.AvailableBaseDirs = ToSelectList(GetPaths(model.Target).Select(x => x.Key));
+            model.AvailableRelativePaths = GetAvailableRelativePaths(model.Target, model.BaseDir);
         }
 
         [Authorize]
         [HttpPost]
         public ActionResult ExecuteCommand(HomeModel model)
         {
-            model.Error = null;
-            if (null == model.AvailableRelativePaths || (false == model.AvailableRelativePaths.Any()))
-            {
-                model.AvailableRelativePaths = GetAvailableRelativePaths();
-            }
+            UpdateAvailableOptions(model);
 
             using (var client = new WhitelistExecuterClient())
             {
                 ExecutionResult result;
                 try
                 {
-                    result = client.API.ExecuteCommand(model.Command, model.RelativePath);
+                    result = client.APIs[model.Target].ExecuteCommand(model.BaseDir, model.Command, model.RelativePath);
                 }
                 catch (Exception e)
                 {
@@ -43,6 +81,7 @@ namespace WhitelistExecuter.Web.Controllers
                     return View("Index", model);
                 }
                 //.....ViewBag.ViewBag.mo
+                model.LastCommandPath = Path.Combine(model.BaseDir, model.RelativePath);
                 model.StandardOutput += result.StandardOutput.Trim();
                 model.StandardError += result.StandardError.Trim();
             }
@@ -50,9 +89,16 @@ namespace WhitelistExecuter.Web.Controllers
         }
 
 
-        private static SelectListItem[] GetAvailableRelativePaths()
+        private static SelectListItem[] GetAvailableRelativePaths(string target, string baseDir)
         {
-            return GetPaths().Select(x => new SelectListItem()
+            var strs = GetPaths(target).Single(x => x.Key.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
+                             .Value;
+            return ToSelectList(strs);
+        }
+
+        private static SelectListItem[] ToSelectList(IEnumerable<string> strs)
+        {
+            return strs.Select(x => new SelectListItem()
             {
                 Text = x,
                 Value = x,
@@ -60,19 +106,19 @@ namespace WhitelistExecuter.Web.Controllers
             }).ToArray();
         }
 
-        private static string[] GetPaths()
+        private static List<KeyValuePair<string, string[]>> GetPaths(string target)
         {
-            string[] paths;
+            List<KeyValuePair<string, string[]>> paths;
             if (WebSecurity.IsAuthenticated)
             {
                 using (var client = new WhitelistExecuterClient())
                 {
-                    paths = client.API.GetPaths();
+                    paths = client.APIs[target].GetPaths();
                 }
             }
             else
             {
-                paths = new string[0];
+                paths = new List<KeyValuePair<string, string[]>>();
             }
             return paths;
         }

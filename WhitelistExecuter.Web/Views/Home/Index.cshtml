@@ -18,12 +18,45 @@
 }
 @if (User.Identity.IsAuthenticated)
 {
+    <h1>Execute a command</h1>
+
+    using (Html.BeginForm("SetTarget", "Home"))
+    {
+    @Html.AntiForgeryToken()
+        <fieldset>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.Target)
+                @Html.DropDownListFor(m => m.Target, new SelectList(Model.AvailableTargets, "Value", "Text"))
+                <span>@Model.Target</span>
+            </li>
+        </ol>
+        <button type="submit">Update</button>
+    </fieldset>
+    }
+
+    using (Html.BeginForm("SetBaseDir", "Home"))
+    {
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Target)
+        <fieldset>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.BaseDir)
+                @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs, "Value", "Text"))
+                <span>@Model.BaseDir</span>
+            </li>
+        </ol>
+        <button type="submit">Update</button>
+    </fieldset>
+    }
     
     <div class="command-form">
     @using (Html.BeginForm("ExecuteCommand", "Home"))
     {
     @Html.AntiForgeryToken()
-    <h1>Execute a command</h1>
+    @Html.HiddenFor(m => m.Target)
+    @Html.HiddenFor(m => m.BaseDir)
 
     <fieldset>
         <legend>Command Form</legend>
@@ -46,6 +79,7 @@
     <hr />
     
     <div class="command-output">
+        <p>@Model.LastCommandPath</p>
     @if (null != Model.Error)
     {
         <h3>Error:</h3>
