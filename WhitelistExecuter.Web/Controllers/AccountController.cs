@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Transactions;
 using System.Web;
@@ -17,6 +18,8 @@ namespace WhitelistExecuter.Web.Controllers
     [InitializeSimpleMembership]
     public class AccountController : Controller
     {
+        protected const string APP_KEY_SETTING_ALLOW_ANON_REGISTER = "AllowAnonymousRegistration";
+
         //
         // GET: /Account/Login
 
@@ -80,12 +83,20 @@ namespace WhitelistExecuter.Web.Controllers
         // POST: /Account/Register
 
         [HttpPost]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public ActionResult Register(RegisterModel model)
         {
             if (ModelState.IsValid)
             {
+                if (false == WebSecurity.IsAuthenticated)
+                {
+                    if (false == ConfigurationManager.AppSettings[APP_KEY_SETTING_ALLOW_ANON_REGISTER].Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        WebSecurity.RequireAuthenticatedUser();
+                        return View();
+                    }
+                }
                 // Attempt to register the user
                 try
                 {
