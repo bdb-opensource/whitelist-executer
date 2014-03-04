@@ -35,9 +35,8 @@ namespace WhitelistExecuter.Web.Controllers
                     return View("Index", model);
                 }
                 //.....ViewBag.ViewBag.mo
-                model.StandardOutput = result.StandardOutput;
-                model.StandardError = result.StandardError;
-
+                model.StandardOutput += result.StandardOutput.Trim();
+                model.StandardError += result.StandardError.Trim();
             }
             return View("Index", model);
         }

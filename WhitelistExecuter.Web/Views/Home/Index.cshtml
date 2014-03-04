@@ -18,40 +18,46 @@
 }
 @if (User.Identity.IsAuthenticated)
 {
+    
+    <div class="command-form">
+    @using (Html.BeginForm("ExecuteCommand", "Home"))
+    {
+    @Html.AntiForgeryToken()
     <h1>Execute a command</h1>
 
-    using (Html.BeginForm("ExecuteCommand", "Home"))
-    {
-        @Html.AntiForgeryToken()
-        @Html.ValidationSummary()
-        <fieldset>
-            <legend>Registration Form</legend>
-            <ol>
-                <li>
-                    @Html.LabelFor(m => m.RelativePath)
-                    @Html.TextBoxFor(m => m.RelativePath)
-                </li>
-                <li>
-                    @Html.LabelFor(m => m.Command)
-                    @Html.EnumDropDownListFor(m => m.Command)
-                </li>
-            </ol>
-            <input type="submit" value="Execute" />
-        </fieldset>
+    <fieldset>
+        <legend>Command Form</legend>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.RelativePath)
+                @Html.TextBoxFor(m => m.RelativePath)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.Command)
+                @Html.EnumDropDownListFor(m => m.Command)
+            </li>
+        </ol>
+        <input type="submit" value="Execute" />
+        <div class="form-errors">@Html.ValidationSummary()</div>
+    </fieldset>
     }
+    </div>
     
-    if (null != Model.Error)
+    <hr />
+    
+    <div class="command-output">
+    @if (null != Model.Error)
     {
         <h3>Error:</h3>
         <pre>@Model.Error</pre>
     }
     else
     {
-        <h3>Standard Output:</h3>
-        <pre>@Model.StandardOutput</pre>
-        <h3>Standard Error:</h3>
-        <pre>@Model.StandardError</pre>
+        <h3>Command Output:</h3>
+        <pre>@(Model.StandardOutput + "\n" + @Model.StandardError)</pre>
     }
+    </div>
+    
 }
 else
 {
