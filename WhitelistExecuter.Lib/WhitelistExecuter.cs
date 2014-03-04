@@ -48,12 +48,27 @@ namespace WhitelistExecuter.Lib
             var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
             Directory.SetCurrentDirectory(baseDir);
             var baseDirInfo = new DirectoryInfo(baseDir);
-            return baseDirInfo.GetDirectories().Select(x => x.Name).ToArray();
+            return baseDirInfo.GetDirectories(".git", SearchOption.AllDirectories)
+                              .Select(x => 
+                                  String.Join(Path.DirectorySeparatorChar.ToString(), 
+                                              ParentsUpTo(x.Parent, baseDirInfo).Reverse().Select(p => p.Name)))
+                              .Where(x => false == String.IsNullOrWhiteSpace(x))
+                              .ToArray();
         }
 
         #endregion
 
         #region Protected Methods
+
+        protected IEnumerable<DirectoryInfo> ParentsUpTo(DirectoryInfo subPath, DirectoryInfo basePath)
+        {
+            var cur = subPath;
+            while ((null != cur) && (cur.FullName != basePath.FullName))
+            {
+                yield return cur;
+                cur = cur.Parent;
+            }
+        }
 
         protected ExecutionResult RunGit(string args)
         {
