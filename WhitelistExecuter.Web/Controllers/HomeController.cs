@@ -45,7 +45,9 @@ namespace WhitelistExecuter.Web.Controllers
         private static HomeModel GetModelForTarget(string targetName)
         {
             var allPaths = GetPaths(targetName);
-            var defaultBaseDir = allPaths[0].Key;
+            var defaultBaseDir = (false == allPaths.Any())
+                               ? null
+                               : allPaths.First().Key;
             var model = new HomeModel()
             {
                 Target = targetName,
@@ -91,7 +93,12 @@ namespace WhitelistExecuter.Web.Controllers
 
         private static SelectListItem[] GetAvailableRelativePaths(string target, string baseDir)
         {
-            var strs = GetPaths(target).Single(x => x.Key.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
+            var paths = GetPaths(target);
+            if (false == paths.Any())
+            {
+                return null;
+            }
+            var strs = paths.Single(x => x.Key.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase))
                              .Value;
             return ToSelectList(strs);
         }

@@ -66,6 +66,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="log4net.config" />
+    <None Include="Install.bat" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
