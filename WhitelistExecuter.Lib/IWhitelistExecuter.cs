@@ -23,11 +23,11 @@ namespace WhitelistExecuter.Lib
     public enum Command
     {
         [EnumMember]
-        GIT_PULL,
+        GIT_STATUS,
         [EnumMember]
         GIT_FETCH,
         [EnumMember]
-        GIT_STATUS
+        GIT_PULL
     }
 
     [DataContract]

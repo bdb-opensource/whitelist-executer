@@ -12,6 +12,8 @@ namespace WhitelistExecuter.Lib
     {
         protected static ILog _logger = log4net.LogManager.GetLogger("Executer");
 
+        protected static string[] _paths = GetPathsFromFilesystem();
+
         protected class AppKeys
         {
             public const string BASE_DIR = "BaseDir";
@@ -45,22 +47,29 @@ namespace WhitelistExecuter.Lib
 
         public string[] GetPaths()
         {
-            var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
-            Directory.SetCurrentDirectory(baseDir);
-            var baseDirInfo = new DirectoryInfo(baseDir);
-            return baseDirInfo.GetDirectories(".git", SearchOption.AllDirectories)
-                              .Select(x => 
-                                  String.Join(Path.DirectorySeparatorChar.ToString(), 
-                                              ParentsUpTo(x.Parent, baseDirInfo).Reverse().Select(p => p.Name)))
-                              .Where(x => false == String.IsNullOrWhiteSpace(x))
-                              .ToArray();
+            return _paths;
         }
 
         #endregion
 
         #region Protected Methods
 
-        protected IEnumerable<DirectoryInfo> ParentsUpTo(DirectoryInfo subPath, DirectoryInfo basePath)
+        protected static string[] GetPathsFromFilesystem()
+        {
+            var baseDir = ConfigurationManager.AppSettings[AppKeys.BASE_DIR];
+            Directory.SetCurrentDirectory(baseDir);
+            var baseDirInfo = new DirectoryInfo(baseDir);
+            return baseDirInfo.GetFileSystemInfos(".git", SearchOption.AllDirectories)
+                              .Select(x => new DirectoryInfo(Path.GetDirectoryName(x.FullName)))
+                              .Select(x =>
+                                  String.Join(Path.DirectorySeparatorChar.ToString(),
+                                              ParentsUpTo(x, baseDirInfo).Reverse().Select(p => p.Name)))
+                              .Where(x => false == String.IsNullOrWhiteSpace(x))
+                              .ToArray();
+        }
+
+        
+        protected static IEnumerable<DirectoryInfo> ParentsUpTo(DirectoryInfo subPath, DirectoryInfo basePath)
         {
             var cur = subPath;
             while ((null != cur) && (cur.FullName != basePath.FullName))

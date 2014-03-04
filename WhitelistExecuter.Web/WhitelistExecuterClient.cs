@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.ServiceModel;
 using System.Web;
@@ -13,9 +14,7 @@ namespace WhitelistExecuter.Web
 
         public WhitelistExecuterClient()
         {
-            var myBinding = new BasicHttpBinding();
-            var myEndpoint = new EndpointAddress("http://localhost/");
-            var myChannelFactory = new ChannelFactory<IWhitelistExecuter>(myBinding, myEndpoint);
+            var myChannelFactory = new ChannelFactory<IWhitelistExecuter>("WhitelistExecuter.Lib.IWhitelistExecuter");
             this.API = myChannelFactory.CreateChannel();
         }
 

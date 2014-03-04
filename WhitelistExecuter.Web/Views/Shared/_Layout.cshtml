@@ -42,5 +42,19 @@
 
         @Scripts.Render("~/bundles/jquery")
         @RenderSection("scripts", required: false)
+
+        
+    <script>
+        jQuery(document).ready(function () {
+            jQuery('[data-confirm]').click(function (e) {
+                if (!confirm(jQuery(this).attr("data-confirm"))) {
+                    e.preventDefault();
+                }
+            });
+            $('form').submit(function () {
+                $('[type=submit]', this).attr('disabled', 'disabled');
+            });
+        });
+    </script>
     </body>
 </html>
