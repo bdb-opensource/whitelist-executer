@@ -783,3 +783,10 @@ tr.pager td {
 .form-errors {
     display: inline-block;
 }
+
+hr {
+    color: #eee;
+    background-color: #eee;
+    border-color: #eee;
+    margin: 20px 0;
+}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Configuration.Install;
 using System.Linq;
 using System.ServiceProcess;
@@ -14,7 +15,7 @@ namespace WhitelistExecuter.WinService
     [RunInstaller(true)]
     public class ProjectInstaller : Installer
     {
-        public const string ServiceName = "WhitelistExecuter";
+        public static readonly string ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 
         private ServiceProcessInstaller process;
         private ServiceInstaller service;

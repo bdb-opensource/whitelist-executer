@@ -18,7 +18,7 @@
 }
 @if (User.Identity.IsAuthenticated)
 {
-    <h1>Execute a command</h1>
+    <h1>Set target &amp; base path</h1>
 
     using (Html.BeginForm("SetTarget", "Home"))
     {
@@ -28,12 +28,12 @@
             <li>
                 @Html.LabelFor(m => m.Target)
                 @Html.DropDownListFor(m => m.Target, new SelectList(Model.AvailableTargets, "Value", "Text"))
-                <span>@Model.Target</span>
             </li>
         </ol>
         <button type="submit">Update</button>
     </fieldset>
     }
+    <hr />
 
     using (Html.BeginForm("SetBaseDir", "Home"))
     {
@@ -44,12 +44,14 @@
             <li>
                 @Html.LabelFor(m => m.BaseDir)
                 @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs, "Value", "Text"))
-                <span>@Model.BaseDir</span>
             </li>
         </ol>
         <button type="submit">Update</button>
     </fieldset>
     }
+    <hr />
+    
+    <h1>Execute a command</h1>
     
     <div class="command-form">
     @using (Html.BeginForm("ExecuteCommand", "Home"))
@@ -58,6 +60,8 @@
     @Html.HiddenFor(m => m.Target)
     @Html.HiddenFor(m => m.BaseDir)
 
+            <h4>Target: @Model.Target</h4>
+            <h4>Base path: @Model.BaseDir</h4>
     <fieldset>
         <legend>Command Form</legend>
         <ol>
