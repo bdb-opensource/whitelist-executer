@@ -23,6 +23,8 @@ namespace WhitelistExecuter.Lib
             public const string GIT_EXE = "GitExe";
 
             public const string PROCESS_TIMEOUT_SECONDS = "ProcessTimeoutSeconds";
+
+            public const string SCRIPT_FILE_PATH = "ScriptFilePath";
         }
 
         #region IWhitelistExecuter Members
@@ -46,17 +48,10 @@ namespace WhitelistExecuter.Lib
                 case Command.GIT_FETCH: return RunGit("fetch");
                 case Command.GIT_PULL: return RunGit("pull");
                 case Command.GIT_STATUS: return RunGit("status");
+                case Command.RUN_SCRIPT: return RunScript();
                 default:
                     throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
             }
-        }
-
-        private static string[] AllowedBaseDirs()
-        {
-            return ConfigurationManager.AppSettings[AppKeys.BASE_DIRS]
-                .Split(';')
-                .Select(x => x.Trim())
-                .ToArray();
         }
 
         public List<KeyValuePair<string, string[]>> GetPaths()
@@ -67,6 +62,19 @@ namespace WhitelistExecuter.Lib
         #endregion
 
         #region Protected Methods
+
+        protected static ExecutionResult RunScript()
+        {
+            return ExecuteCommand(ConfigurationManager.AppSettings[AppKeys.SCRIPT_FILE_PATH], "");
+        }
+
+        protected static string[] AllowedBaseDirs()
+        {
+            return ConfigurationManager.AppSettings[AppKeys.BASE_DIRS]
+                .Split(';')
+                .Select(x => x.Trim())
+                .ToArray();
+        }
 
         protected static Dictionary<string, string[]> GetPathsFromFilesystem()
         {
@@ -98,7 +106,12 @@ namespace WhitelistExecuter.Lib
 
         protected ExecutionResult RunGit(string args)
         {
-            var startInfo = new ProcessStartInfo(ConfigurationManager.AppSettings[AppKeys.GIT_EXE], args)
+            return ExecuteCommand(ConfigurationManager.AppSettings[AppKeys.GIT_EXE], args);
+        }
+
+        protected static ExecutionResult ExecuteCommand(string exePath, string args)
+        {
+            var startInfo = new ProcessStartInfo(exePath, args)
             {
                 UseShellExecute = false,
                 RedirectStandardError = true,
@@ -112,10 +125,10 @@ namespace WhitelistExecuter.Lib
                 var stdError = process.StandardError.ReadToEnd();
                 if (false == hasExited)
                 {
-                    _logger.Error("Timeout when running: git " + args + " in directory " + Directory.GetCurrentDirectory());
+                    _logger.Error("Timeout when running: " + exePath + " " + args + " in directory " + Directory.GetCurrentDirectory());
                     _logger.Error("Execution stdout:" + stdOut);
                     _logger.Error("Execution stderr:" + stdError);
-                    throw new Exception("Execution timed out: git " + args);
+                    throw new Exception("Execution timed out: " + exePath + " " + args);
                 }
                 return new ExecutionResult
                 {

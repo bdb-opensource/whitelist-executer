@@ -27,7 +27,9 @@ namespace WhitelistExecuter.Lib
         [EnumMember]
         GIT_FETCH,
         [EnumMember]
-        GIT_PULL
+        GIT_PULL,
+        [EnumMember]
+        RUN_SCRIPT,
     }
 
     [DataContract]
