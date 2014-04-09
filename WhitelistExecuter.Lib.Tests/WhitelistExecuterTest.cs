@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Configuration;
+using System.Diagnostics;
 
 namespace WhitelistExecuter.Lib.Tests
 {
@@ -62,13 +63,18 @@ namespace WhitelistExecuter.Lib.Tests
         public void ExecuteCommandTest()
         {
             var baseDir = @"C:\Temp\Dir1";
+            Directory.CreateDirectory(baseDir);
+            Directory.CreateDirectory(@"C:\Temp\Dir2");
+
+            var target = new WhitelistExecuter();
             var relativePath = Path.GetRandomFileName();
             var targetPath = Path.Combine(baseDir, relativePath);
             Directory.CreateDirectory(targetPath);
             var scriptFile = ConfigurationManager.AppSettings["ScriptFilePath"];
             File.WriteAllText(Path.Combine(targetPath, scriptFile), "@echo OK\n");
-            var target = new WhitelistExecuter(); // TODO: Initialize to an appropriate value
-            var actual = target.ExecuteCommand(baseDir, Command.GIT_STATUS, relativePath);
+            var actual = target.ExecuteCommand(baseDir, Command.RUN_SCRIPT, relativePath);
+            Debug.WriteLine("stdout: " + actual.StandardOutput);
+            Debug.WriteLine("stderr: " + actual.StandardError);
             Assert.AreEqual(0, actual.ExitCode);
             Assert.AreEqual("OK", actual.StandardOutput.Trim());
         }

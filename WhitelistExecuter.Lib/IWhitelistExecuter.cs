@@ -14,6 +14,10 @@ namespace WhitelistExecuter.Lib
         [OperationContract]
         ExecutionResult ExecuteCommand(string baseDir, Command command, string relativeWorkingDir);
 
+        /// <summary>
+        /// Returns a list of key-value pairs, where the key is a base path and the value is a list of subdirs in that base path.
+        /// </summary>
+        /// <returns></returns>
         [OperationContract]
         List<KeyValuePair<string, string[]>> GetPaths();
     }
