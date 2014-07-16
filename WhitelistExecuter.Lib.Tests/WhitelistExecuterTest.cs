@@ -72,7 +72,7 @@ namespace WhitelistExecuter.Lib.Tests
             Directory.CreateDirectory(targetPath);
             var scriptFile = ConfigurationManager.AppSettings["ScriptFilePath"];
             File.WriteAllText(Path.Combine(targetPath, scriptFile), "@echo OK\n");
-            var actual = target.ExecuteCommand(baseDir, Command.RUN_SCRIPT, relativePath);
+            var actual = target.ExecuteCommand(baseDir, Command.DEPLOY_SERVICES, relativePath);
             Debug.WriteLine("stdout: " + actual.StandardOutput);
             Debug.WriteLine("stderr: " + actual.StandardError);
             Assert.AreEqual(0, actual.ExitCode);

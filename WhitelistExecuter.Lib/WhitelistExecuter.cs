@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using log4net;
 
 namespace WhitelistExecuter.Lib
@@ -24,7 +25,7 @@ namespace WhitelistExecuter.Lib
 
             public const string PROCESS_TIMEOUT_SECONDS = "ProcessTimeoutSeconds";
 
-            public const string SCRIPT_FILE_PATH = "ScriptFilePath";
+            public const string SERVICES_FILE_PATH = "ServicesFilePath";
         }
 
         #region IWhitelistExecuter Members
@@ -52,7 +53,8 @@ namespace WhitelistExecuter.Lib
                     case Command.GIT_FETCH: return RunGit("fetch");
                     case Command.GIT_PULL: return RunGit("pull");
                     case Command.GIT_STATUS: return RunGit("status");
-                    case Command.RUN_SCRIPT: return RunScript();
+                    case Command.DEPLOY_SERVICES: return RunScript(absPath);
+                    case Command.SERVICES_STATUS: return ServicesStatus(absPath);
                     default:
                         throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
                 }
@@ -73,9 +75,63 @@ namespace WhitelistExecuter.Lib
 
         #region Protected Methods
 
-        protected static ExecutionResult RunScript()
+        private ExecutionResult ServicesStatus(string path)
         {
-            return ExecuteCommand(ConfigurationManager.AppSettings[AppKeys.SCRIPT_FILE_PATH], "");
+            var services = GetServiceControllers(path);
+
+            return new ExecutionResult()
+            {
+                ExitCode = 0,
+                StandardOutput = String.Empty,
+                StandardError = String.Join(Environment.NewLine, services.Select(x => String.Format("{0}: {1}", x.ServiceName, x.Status.ToString())))
+            };
+        }
+
+        protected ExecutionResult RunScript(string path)
+        {
+            var services = GetServiceControllers(path);
+
+            var fetchRes = RunGit("fetch");
+
+            var statusPre = this.ServicesStatus(path);
+            foreach (var service in services)
+            {
+                if (service.CanStop)
+                {
+                    service.Stop();
+                }
+            }
+            foreach (var service in services)
+            {
+                service.WaitForStatus(ServiceControllerStatus.Stopped);
+            }
+
+            var statusPost = this.ServicesStatus(path);
+            var pullRes = RunGit("pull");
+            foreach (var service in services.Reverse())
+            {
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running);
+            }
+            return ConcatExecutionResults(statusPre, statusPost, fetchRes, pullRes, this.ServicesStatus(path));
+        }
+
+        private static ServiceController[] GetServiceControllers(string path)
+        {
+            var serviceNames = File.ReadAllLines(Path.Combine(path, ConfigurationManager.AppSettings[AppKeys.SERVICES_FILE_PATH]));
+            var services = ServiceController.GetServices().Where(x => serviceNames.Any(n => n.Equals(x.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
+                .ToArray();
+            return services;
+        }
+
+        private static ExecutionResult ConcatExecutionResults(params ExecutionResult[] results)
+        {
+            return new ExecutionResult()
+            {
+                ExitCode = results[results.Length - 1].ExitCode,
+                StandardError = results.Aggregate(String.Empty, (a, b) => a + Environment.NewLine + b.StandardError),
+                StandardOutput = results.Aggregate(String.Empty, (a, b) => a + Environment.NewLine + b.StandardOutput)
+            };
         }
 
         protected static string[] AllowedBaseDirs()

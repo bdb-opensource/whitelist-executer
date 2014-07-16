@@ -33,7 +33,9 @@ namespace WhitelistExecuter.Lib
         [EnumMember]
         GIT_PULL,
         [EnumMember]
-        RUN_SCRIPT,
+        SERVICES_STATUS,
+        [EnumMember]
+        DEPLOY_SERVICES,
     }
 
     [DataContract]
