@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using log4net;
 using WebMatrix.WebData;
 using WhitelistExecuter.Lib;
 using WhitelistExecuter.Web.Filters;
@@ -13,6 +14,8 @@ namespace WhitelistExecuter.Web.Controllers
 {
     public class HomeController : Controller
     {
+        protected static readonly ILog _logger = log4net.LogManager.GetLogger("HomeController");
+
         public ActionResult Index()
         {
 
@@ -80,6 +83,7 @@ namespace WhitelistExecuter.Web.Controllers
                 ExecutionResult result;
                 try
                 {
+                    _logger.InfoFormat("Executing command: {0} in {1}:{2}/{3}. User: {4}", model.Command, model.Target, model.BaseDir, model.RelativePath, WebSecurity.CurrentUserName);
                     result = client.APIs[model.Target].ExecuteCommand(model.BaseDir, model.Command, model.RelativePath);
                 }
                 catch (Exception e)

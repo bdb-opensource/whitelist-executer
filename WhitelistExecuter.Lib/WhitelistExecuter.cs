@@ -10,7 +10,7 @@ namespace WhitelistExecuter.Lib
 {
     public class WhitelistExecuter : IWhitelistExecuter
     {
-        protected static readonly ILog _logger = log4net.LogManager.GetLogger("Executer");
+        protected static readonly ILog _logger = log4net.LogManager.GetLogger("WhitelistExecuter");
 
         protected static readonly string[] _allowedBaseDirs = AllowedBaseDirs();
 
@@ -31,26 +31,36 @@ namespace WhitelistExecuter.Lib
 
         public ExecutionResult ExecuteCommand(string baseDir, Command command, string relativeWorkingDir)
         {
-            if (false == _allowedBaseDirs.Any(x => x.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase)))
+            var commandInfo = String.Format("command: {0} in {1}/{2}", command.ToString(), baseDir, relativeWorkingDir);
+            _logger.InfoFormat("Preparing to execute " + commandInfo);
+            try
             {
-                throw new ArgumentException("Base dir: " + baseDir + " is not whitelisted.");
-            }
+                if (false == _allowedBaseDirs.Any(x => x.Equals(baseDir, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    throw new ArgumentException("Base dir: " + baseDir + " is not whitelisted.");
+                }
 
-            Directory.SetCurrentDirectory(baseDir);
-            var absPath = Path.GetFullPath(Path.Combine(baseDir, relativeWorkingDir));
-            if ((false == absPath.StartsWith(baseDir)) || (Path.IsPathRooted(relativeWorkingDir)))
-            {
-                throw new ArgumentException("Expecting relative sub-path, not: " + relativeWorkingDir, "relativeWorkingDir");
+                Directory.SetCurrentDirectory(baseDir);
+                var absPath = Path.GetFullPath(Path.Combine(baseDir, relativeWorkingDir));
+                if ((false == absPath.StartsWith(baseDir)) || (Path.IsPathRooted(relativeWorkingDir)))
+                {
+                    throw new ArgumentException("Expecting relative sub-path, not: " + relativeWorkingDir, "relativeWorkingDir");
+                }
+                Directory.SetCurrentDirectory(absPath);
+                switch (command)
+                {
+                    case Command.GIT_FETCH: return RunGit("fetch");
+                    case Command.GIT_PULL: return RunGit("pull");
+                    case Command.GIT_STATUS: return RunGit("status");
+                    case Command.RUN_SCRIPT: return RunScript();
+                    default:
+                        throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
+                }
             }
-            Directory.SetCurrentDirectory(absPath);
-            switch (command)
+            catch (Exception e)
             {
-                case Command.GIT_FETCH: return RunGit("fetch");
-                case Command.GIT_PULL: return RunGit("pull");
-                case Command.GIT_STATUS: return RunGit("status");
-                case Command.RUN_SCRIPT: return RunScript();
-                default:
-                    throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
+                _logger.Error("Exception while executing " + commandInfo, e);
+                throw;
             }
         }
 
