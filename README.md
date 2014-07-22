@@ -10,6 +10,8 @@ The current set of commands assumes your production environment uses git-based d
 - Windows services that require stop/start when deploying
 
 
+**Important Security Notes**: You are encouraged to limit access to the whitelist executer website using IP address restrictions. For the agents, the current version doesn't limit access to the WCF endpoint. You're encouraged to change the WCF configuration to allow access only from the whitelist executer web app.
+
 ## Supported Commands
 
 Please consult [IWhitelistExecutor.cs](https://github.com/bdb-opensource/whitelist-executer/blob/master/WhitelistExecuter.Lib/IWhitelistExecuter.cs) for the most up-to-date list of commands.
@@ -84,6 +86,7 @@ The following fragment from web.config includes two agents. One is called 'Web' 
  
 Don't forget to edit the web.config (and for the agent, the .exe.config) so that the client and service endpoint addresses match.
 
+Also, see the security notes in the intro at the top of this document.
 
 ## Usage
 
