@@ -50,12 +50,12 @@ Example:
 
 The following fragment from web.config includes two agents. One is called 'Web' and runs on the same server as the web app; the other is called 'Backend' and runs on a machine called backend.
 
-  <system.serviceModel>
-    <client>
-      <endpoint name="Web" contract="WhitelistExecuter.Lib.IWhitelistExecuter" binding="basicHttpBinding" address="http://localhost:10000/"/>
-      <endpoint name="Backend" contract="WhitelistExecuter.Lib.IWhitelistExecuter" binding="basicHttpBinding" address="http://backend:10000/"/>
-    </client>
-  </system.serviceModel>
+    <system.serviceModel>
+        <client>
+          <endpoint name="Web" contract="WhitelistExecuter.Lib.IWhitelistExecuter" binding="basicHttpBinding" address="http://localhost:10000/"/>
+          <endpoint name="Backend" contract="WhitelistExecuter.Lib.IWhitelistExecuter" binding="basicHttpBinding" address="http://backend:10000/"/>
+        </client>
+    </system.serviceModel>
   
 ## Deployment
 
