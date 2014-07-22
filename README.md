@@ -35,7 +35,7 @@ The agent (which runs as a windows service) supports the following appkeys in ap
 - ProcessTimeoutSeconds - how long to wait on a command before timing out
 - ServicesFilePath - name of file to look for in each repository that contains a line-by-line list of windows service names.
 
-Example:
+#### Example
 
     <add key="BaseDirs" value="D:\Deployment;C:\Web\Images"/>
     <add key="GitExe" value="c:\cygwin\bin\git.exe"/>
@@ -46,7 +46,7 @@ Example:
 
 The web app's web.config contains a list of WCF client endpoints, which are used to determine the addresses of agents that should be managed. 
 
-Example:
+#### Example
 
 The following fragment from web.config includes two agents. One is called 'Web' and runs on the same server as the web app; the other is called 'Backend' and runs on a machine called backend.
 
