@@ -28,6 +28,8 @@ The deployed whitelist executer web app and agents use app.config/web.config for
 
 ### Agent
 
+#### AppSetting keys
+
 The agent (which runs as a windows service) supports the following appkeys in app.config:
 
 - BaseDirs - semicolon-separated list of directories under which the agent searches for git repositories to manage.
@@ -35,16 +37,24 @@ The agent (which runs as a windows service) supports the following appkeys in ap
 - ProcessTimeoutSeconds - how long to wait on a command before timing out
 - ServicesFilePath - name of file to look for in each repository that contains a line-by-line list of windows service names.
 
-#### Example
+#### WCF Service Endpoint
+
+The agent exposes a WCF service endpoint that is also configurable in the app.config. Set the address of the endpoint in accordance to your production policies / firewall configuration so that the web app on the web server will be able to access the service.
+
+
+
+#### Example app keys (appSettings) configuration
 
     <add key="BaseDirs" value="D:\Deployment;C:\Web\Images"/>
     <add key="GitExe" value="c:\cygwin\bin\git.exe"/>
     <add key="ProcessTimeoutSeconds" value="120"/>
     <add key="ServicesFilePath" value="services.txt"/>
     
+    
 ### Web app
 
-The web app's web.config contains a list of WCF client endpoints, which are used to determine the addresses of agents that should be managed. 
+- WCF client endpoints: the web app's web.config contains a list of WCF client endpoints, which are used to determine the addresses of agents that should be managed.
+- ASP.Net Identity database: the web app uses [ASP.Net Identity](http://www.asp.net/identity/overview/getting-started/aspnet-identity-recommended-resources#gettingstarted) and a SQL database to manage authentication. For development, the connection string is configured to use LocalDB. When hosting on IIS on production, you can change the connection string to use a SQL Server instance or jump through (many) hoops to make LocalDB work on IIS. In any case if the database configured as the data source doesn't exist, it will be created when the web application starts and an initial admin user will be created.
 
 #### Example
 
@@ -59,6 +69,20 @@ The following fragment from web.config includes two agents. One is called 'Web' 
   
 ## Deployment
 
+### Requirements
+
+- Web server: IIS (tested on 7.5) with .NET 4.5 installed and registered (see [ASP.NET IIS Registration](http://msdn.microsoft.com/en-us/library/k6h9cz8h%28v=vs.100%29.aspx)). May work with .NET 4.0 but not tested.
+- Agent servers: Administrative access in order to install the agent windows service.
+- "Modern" version of Windows for both web app and agent. Tested on Windows 7 and Windows Server 2008R2.
+
+### Deployment "instructions"
+
 - Web app: use standard procedures for deploying an ASP.NET web application (right click on project and select 'Publish...' or use some other method).
 - Agents: copy the resulting binaries from bin\Debug to the production machine, and install the executable as a windows service.
+ 
+Don't forget to edit the web.config (and for the agent, the .exe.config) so that the client and service endpoint addresses match.
 
+
+## Usage
+
+Once the web application and agents have been deployed, you should be able to access the whitelist executer website using a browser.
