@@ -71,7 +71,9 @@ The following fragment from web.config includes two agents. One is called 'Web' 
 
 ### Requirements
 
-- Web server: IIS (tested on 7.5) with .NET 4.5 installed and registered (see [ASP.NET IIS Registration](http://msdn.microsoft.com/en-us/library/k6h9cz8h%28v=vs.100%29.aspx)). May work with .NET 4.0 but not tested.
+- Web server:
+  - IIS (tested on 7.5) with .NET 4.5 installed and registered (see [ASP.NET IIS Registration](http://msdn.microsoft.com/en-us/library/k6h9cz8h%28v=vs.100%29.aspx)). May work with .NET 4.0 but not tested.
+  - SQL Server or any other EF-compatible data source. You should change the connection string in web.config to point to your data source.
 - Agent servers: Administrative access in order to install the agent windows service.
 - "Modern" version of Windows for both web app and agent. Tested on Windows 7 and Windows Server 2008R2.
 
