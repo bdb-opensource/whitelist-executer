@@ -10,7 +10,7 @@ The current set of commands assumes your production environment uses git-based d
 - Windows services that require stop/start when deploying
 
 
-**Important Security Notes**: You are encouraged to limit access to the whitelist executer website using IP address restrictions. For the agents, the current version doesn't limit access to the WCF endpoint. You're encouraged to change the WCF configuration to allow access only from the whitelist executer web app.
+**Important Security Notes**: Although the website uses authentication, you are encouraged to also limit access to the whitelist executer website using IP address restrictions. For the agents, the current version doesn't limit access to the WCF endpoint. You're encouraged to change the WCF configuration to allow access only from the whitelist executer web app.
 
 ## Supported Commands
 
