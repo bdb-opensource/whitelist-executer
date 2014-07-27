@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 
 namespace WhitelistExecuter.Lib
 {
@@ -22,18 +21,24 @@ namespace WhitelistExecuter.Lib
         List<KeyValuePair<string, string[]>> GetPaths();
     }
 
-
     [DataContract]
     public enum Command
     {
         [EnumMember]
         GIT_STATUS,
+
         [EnumMember]
         GIT_FETCH,
+
+        [EnumMember]
+        GIT_DIFF,
+
         [EnumMember]
         GIT_PULL,
+
         [EnumMember]
         SERVICES_STATUS,
+
         [EnumMember]
         DEPLOY_SERVICES,
     }

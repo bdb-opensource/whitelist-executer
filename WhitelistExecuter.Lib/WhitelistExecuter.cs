@@ -53,6 +53,7 @@ namespace WhitelistExecuter.Lib
                     case Command.GIT_FETCH: return RunGit("fetch");
                     case Command.GIT_PULL: return RunGit("pull");
                     case Command.GIT_STATUS: return RunGit("status");
+                    case Command.GIT_DIFF: return RunGit("diff");
                     case Command.DEPLOY_SERVICES: return RunScript(absPath);
                     case Command.SERVICES_STATUS: return ServicesStatus(absPath);
                     default:
