@@ -79,6 +79,8 @@ h3 {
 
 h4 {
     font-size: 1.1em;
+    font-weight: normal;
+    color: #333;
 }
 
 h5, h6 {
@@ -107,12 +109,12 @@ h5, h6 {
     .main-content {
         background: url("../Images/accent.png") no-repeat;
         padding-left: 10px;
-        padding-top: 30px;
+        padding-top: 10px;
     }
 
-    .featured + .main-content {
+    /*.featured + .main-content {
         background: url("../Images/heroAccent.png") no-repeat;
-    }
+    }*/
 
 header .content-wrapper {
     padding-top: 20px; 
@@ -220,7 +222,7 @@ ul#menu {
         background-image: -webkit-linear-gradient(left, #7ac0da 0%, #a4d4e6 100%);
         background-image: linear-gradient(left, #7ac0da 0%, #a4d4e6 100%);
         color: #3e5667;
-        padding: 20px 40px 30px 40px;
+        padding: 5px;
     }
 
         .featured hgroup.title h1, .featured hgroup.title h2 {
@@ -789,4 +791,12 @@ hr {
     background-color: #eee;
     border-color: #eee;
     margin: 20px 0;
+}
+
+.inline-fields label, .inline-fields input, .inline-fields button,.inline-fields select {
+    display:inline-block;
+    margin-right: 10px;
+}
+.inline-fields label {
+    min-width: 150px;
 }

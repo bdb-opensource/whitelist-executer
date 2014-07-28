@@ -23,36 +23,28 @@
     using (Html.BeginForm("SetTarget", "Home"))
     {
     @Html.AntiForgeryToken()
-    <fieldset>
-        <ol>
-            <li>
-                @Html.LabelFor(m => m.Target)
-                @Html.DropDownListFor(m => m.Target, new SelectList(Model.AvailableTargets, "Value", "Text"))
-            </li>
-        </ol>
+    <fieldset class="inline-fields">
+        @Html.LabelFor(m => m.Target)
+        @Html.DropDownListFor(m => m.Target, new SelectList(Model.AvailableTargets, "Value", "Text"))
         <button type="submit">Connect</button>
     </fieldset>
     }
-    
+
     if (false == String.IsNullOrWhiteSpace(Model.Target))
     {
     <hr />
 
         using (Html.BeginForm("SetBaseDir", "Home"))
         {
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.Target)
-            <fieldset>
-                <ol>
-                    <li>
-                        @Html.LabelFor(m => m.BaseDir)
-                        @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs ?? new SelectListItem[] { }, "Value", "Text"))
-                    </li>
-                </ol>
-                <button type="submit">Update</button>
-            </fieldset>
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Target)
+    <fieldset class="inline-fields">
+        @Html.LabelFor(m => m.BaseDir)
+        @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs ?? new SelectListItem[] { }, "Value", "Text"))
+        <button type="submit">Update</button>
+    </fieldset>
         }
-        
+
         if (false == String.IsNullOrWhiteSpace(Model.BaseDir))
         {
     <hr />
@@ -68,29 +60,28 @@
 
             <h4>Target: @Model.Target</h4>
             <h4>Base path: @Model.BaseDir</h4>
-            <fieldset>
-                <legend>Command Form</legend>
-                <ol>
-                    <li>
-                        @Html.LabelFor(m => m.RelativePath)
-                        @Html.DropDownListFor(m => m.RelativePath, new SelectList(Model.AvailableRelativePaths ?? new SelectListItem[] { }, "Value", "Text"))
-                    </li>
-                    <li>
-                        @Html.LabelFor(m => m.Command)
-                        @Html.EnumDropDownListFor(m => m.Command)
-                    </li>
-                </ol>
-                <button type="submit">Execute</button>
-                <div class="form-errors">@Html.ValidationSummary()</div>
+            <fieldset class="inline-fields">
+                <div>
+                    @Html.LabelFor(m => m.RelativePath)
+                    @Html.DropDownListFor(m => m.RelativePath, new SelectList(Model.AvailableRelativePaths ?? new SelectListItem[] { }, "Value", "Text"))
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.Command)
+                    @Html.EnumDropDownListFor(m => m.Command)
+                </div>
+                <div>
+                    <button type="submit">Execute</button>
+                    <div class="form-errors">@Html.ValidationSummary()</div>
+                </div>
             </fieldset>
         }
     </div>
         }
     }
-    
-    if (false == String.IsNullOrWhiteSpace(Model.LastCommandPath) 
+
+    if (false == String.IsNullOrWhiteSpace(Model.LastCommandPath)
         || (false == String.IsNullOrWhiteSpace(Model.Error))
-        || (false == String.IsNullOrWhiteSpace(Model.StandardError)) 
+        || (false == String.IsNullOrWhiteSpace(Model.StandardError))
         || (false == String.IsNullOrWhiteSpace(Model.StandardOutput)))
     {
     <hr />
@@ -108,7 +99,7 @@
             <pre>@(Model.StandardOutput + "\n" + @Model.StandardError)</pre>
         }
     </div>
-}
+    }
 
 }
 else
