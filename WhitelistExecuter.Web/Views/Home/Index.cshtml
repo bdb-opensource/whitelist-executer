@@ -23,79 +23,93 @@
     using (Html.BeginForm("SetTarget", "Home"))
     {
     @Html.AntiForgeryToken()
-        <fieldset>
+    <fieldset>
         <ol>
             <li>
                 @Html.LabelFor(m => m.Target)
                 @Html.DropDownListFor(m => m.Target, new SelectList(Model.AvailableTargets, "Value", "Text"))
             </li>
         </ol>
-        <button type="submit">Update</button>
+        <button type="submit">Connect</button>
     </fieldset>
     }
+    
+    if (false == String.IsNullOrWhiteSpace(Model.Target))
+    {
     <hr />
 
-    using (Html.BeginForm("SetBaseDir", "Home"))
-    {
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(m => m.Target)
-        <fieldset>
-        <ol>
-            <li>
-                @Html.LabelFor(m => m.BaseDir)
-                @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs, "Value", "Text"))
-            </li>
-        </ol>
-        <button type="submit">Update</button>
-    </fieldset>
-    }
+        using (Html.BeginForm("SetBaseDir", "Home"))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Target)
+            <fieldset>
+                <ol>
+                    <li>
+                        @Html.LabelFor(m => m.BaseDir)
+                        @Html.DropDownListFor(m => m.BaseDir, new SelectList(Model.AvailableBaseDirs ?? new SelectListItem[] { }, "Value", "Text"))
+                    </li>
+                </ol>
+                <button type="submit">Update</button>
+            </fieldset>
+        }
+        
+        if (false == String.IsNullOrWhiteSpace(Model.BaseDir))
+        {
     <hr />
-    
+
     <h1>Execute a command</h1>
-    
+
     <div class="command-form">
-    @using (Html.BeginForm("ExecuteCommand", "Home"))
-    {
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(m => m.Target)
-    @Html.HiddenFor(m => m.BaseDir)
+        @using (Html.BeginForm("ExecuteCommand", "Home"))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Target)
+            @Html.HiddenFor(m => m.BaseDir)
 
             <h4>Target: @Model.Target</h4>
             <h4>Base path: @Model.BaseDir</h4>
-    <fieldset>
-        <legend>Command Form</legend>
-        <ol>
-            <li>
-                @Html.LabelFor(m => m.RelativePath)
-                @Html.DropDownListFor(m => m.RelativePath, new SelectList(Model.AvailableRelativePaths, "Value", "Text"))
-            </li>
-            <li>
-                @Html.LabelFor(m => m.Command)
-                @Html.EnumDropDownListFor(m => m.Command)
-            </li>
-        </ol>
-        <button type="submit">Execute</button>
-        <div class="form-errors">@Html.ValidationSummary()</div>
-    </fieldset>
-    }
+            <fieldset>
+                <legend>Command Form</legend>
+                <ol>
+                    <li>
+                        @Html.LabelFor(m => m.RelativePath)
+                        @Html.DropDownListFor(m => m.RelativePath, new SelectList(Model.AvailableRelativePaths ?? new SelectListItem[] { }, "Value", "Text"))
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.Command)
+                        @Html.EnumDropDownListFor(m => m.Command)
+                    </li>
+                </ol>
+                <button type="submit">Execute</button>
+                <div class="form-errors">@Html.ValidationSummary()</div>
+            </fieldset>
+        }
     </div>
+        }
+    }
     
+    if (false == String.IsNullOrWhiteSpace(Model.LastCommandPath) 
+        || (false == String.IsNullOrWhiteSpace(Model.Error))
+        || (false == String.IsNullOrWhiteSpace(Model.StandardError)) 
+        || (false == String.IsNullOrWhiteSpace(Model.StandardOutput)))
+    {
     <hr />
-    
+
     <div class="command-output">
         <p>@Model.LastCommandPath</p>
-    @if (null != Model.Error)
-    {
-        <h3>Error:</h3>
-        <pre>@Model.Error</pre>
-    }
-    else
-    {
-        <h3>Command Output:</h3>
-        <pre>@(Model.StandardOutput + "\n" + @Model.StandardError)</pre>
-    }
+        @if (null != Model.Error)
+        {
+            <h3>Error:</h3>
+            <pre>@Model.Error</pre>
+        }
+        else
+        {
+            <h3>Command Output:</h3>
+            <pre>@(Model.StandardOutput + "\n" + @Model.StandardError)</pre>
+        }
     </div>
-    
+}
+
 }
 else
 {

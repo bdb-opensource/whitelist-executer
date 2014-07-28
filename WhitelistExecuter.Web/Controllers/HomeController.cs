@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Web;
 using System.Web.Mvc;
 using log4net;
@@ -21,7 +22,7 @@ namespace WhitelistExecuter.Web.Controllers
 
             var targets = WhitelistExecuterClient.GetEndpointNames();
             var targetName = targets.First();
-            return SetTarget(new HomeModel() { Target = targetName });
+            return View("Index", CreateHomeModel());
         }
 
         [Authorize]
@@ -51,18 +52,16 @@ namespace WhitelistExecuter.Web.Controllers
             var defaultBaseDir = (false == allPaths.Any())
                                ? null
                                : allPaths.First().Key;
-            var model = new HomeModel()
-            {
-                Target = targetName,
-                BaseDir = defaultBaseDir,
-            };
+            var model = CreateHomeModel();
+            model.Target = targetName;
+            model.BaseDir = defaultBaseDir;
             UpdateAvailableOptions(model);
             return model;
         }
 
         private static void UpdateAvailableOptions(HomeModel model)
         {
-            model.AvailableTargets = ToSelectList(WhitelistExecuterClient.GetEndpointNames());
+            model.AvailableTargets = GetAvailableTargets();
             model.AvailableBaseDirs = ToSelectList(GetPaths(model.Target).Select(x => x.Key));
             model.AvailableRelativePaths = GetAvailableRelativePaths(model.Target, model.BaseDir);
         }
@@ -139,5 +138,18 @@ namespace WhitelistExecuter.Web.Controllers
             return paths;
         }
 
+        private static HomeModel CreateHomeModel()
+        {
+            return new HomeModel
+            {
+                AvailableTargets = GetAvailableTargets(),
+            };
+
+        }
+
+        private static SelectListItem[] GetAvailableTargets()
+        {
+            return ToSelectList(WhitelistExecuterClient.GetEndpointNames());
+        }
     }
 }

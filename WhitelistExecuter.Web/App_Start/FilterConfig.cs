@@ -1,5 +1,6 @@
 ﻿using System.Web;
 using System.Web.Mvc;
+using WhitelistExecuter.Web.App_Start;
 
 namespace WhitelistExecuter.Web
 {
@@ -7,7 +8,7 @@ namespace WhitelistExecuter.Web
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            filters.Add(new ErrorHandler());
         }
     }
 }

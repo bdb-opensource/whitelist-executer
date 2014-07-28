@@ -29,8 +29,7 @@ namespace WhitelistExecuter.Web
             ClientSection clientSection = ConfigurationManager.GetSection("system.serviceModel/client") as ClientSection;
             ChannelEndpointElementCollection endpointCollection =
                 clientSection.ElementInformation.Properties[string.Empty].Value as ChannelEndpointElementCollection;
-            var names = endpointCollection.Cast<ChannelEndpointElement>().Select(x => x.Name);
-            return names;
+            return endpointCollection.Cast<ChannelEndpointElement>().Select(x => x.Name);
         }
 
 
