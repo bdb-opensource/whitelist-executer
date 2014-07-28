@@ -18,6 +18,7 @@ Please consult [IWhitelistExecutor.cs](https://github.com/bdb-opensource/whiteli
 
 - git status
 - git fetch
+- git diff
 - git pull
 - display windows services status
 - deploy a windows service (stop services, git pull, then start services)
