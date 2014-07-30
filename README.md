@@ -20,8 +20,9 @@ Please consult [IWhitelistExecutor.cs](https://github.com/bdb-opensource/whiteli
 - git fetch
 - git diff
 - git pull
-- display windows services status
-- deploy a windows service (stop services, git pull, then start services)
+- display windows services status (listed in a file `services.txt`)
+- deploy a windows service (stop services listed in a file `services.txt`, git pull, then start services)
+- recycle app pools (listed in a file `app_pools.txt`)
 
 The commands related to windows services expect a file (normally `services.txt`) to exist in the deployment target. The file is a simple line-by-line list of windows service names.
 
