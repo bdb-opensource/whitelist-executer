@@ -20,12 +20,10 @@ namespace WhitelistExecuter.Lib
         protected class AppKeys
         {
             public const string BASE_DIRS = "BaseDirs";
-
             public const string GIT_EXE = "GitExe";
-
             public const string PROCESS_TIMEOUT_SECONDS = "ProcessTimeoutSeconds";
-
             public const string SERVICES_FILE_PATH = "ServicesFilePath";
+            public const string APP_POOLS_FILE_PATH = "AppPoolsFilePath";
         }
 
         #region IWhitelistExecuter Members
@@ -54,8 +52,9 @@ namespace WhitelistExecuter.Lib
                     case Command.GIT_PULL: return RunGit("pull");
                     case Command.GIT_STATUS: return RunGit("status");
                     case Command.GIT_DIFF: return RunGit("diff");
-                    case Command.DEPLOY_SERVICES: return RunScript(absPath);
+                    case Command.DEPLOY_SERVICES: return DeployServices(absPath);
                     case Command.SERVICES_STATUS: return ServicesStatus(absPath);
+                    case Command.RECYCLE_APP_POOLS: return RecycleAppPools(absPath);
                     default:
                         throw new ArgumentException("Unsupported command: " + command.ToString(), "command");
                 }
@@ -88,7 +87,7 @@ namespace WhitelistExecuter.Lib
             };
         }
 
-        protected ExecutionResult RunScript(string path)
+        protected ExecutionResult DeployServices(string path)
         {
             var services = GetServiceControllers(path);
 
@@ -115,6 +114,20 @@ namespace WhitelistExecuter.Lib
                 service.WaitForStatus(ServiceControllerStatus.Running);
             }
             return ConcatExecutionResults(statusPre, statusPost, fetchRes, pullRes, this.ServicesStatus(path));
+        }
+
+        private ExecutionResult RecycleAppPools(string absPath)
+        {
+            var appPoolNames = File.ReadAllLines(Path.Combine(absPath, ConfigurationManager.AppSettings[AppKeys.APP_POOLS_FILE_PATH]));
+            List<ExecutionResult> executionResults = new List<ExecutionResult>();
+            foreach (var appPoolName in appPoolNames)
+            {
+                // TODO: use WMI or other API to restart app pools
+                executionResults.Add(ExecuteCommand(
+                    Path.Combine(Environment.GetEnvironmentVariable("windir"), "system32", "inetsrv", "appcmd.exe"), 
+                    "recycle apppool " + appPoolName));
+            }
+            return ConcatExecutionResults(executionResults.ToArray());
         }
 
         private static ServiceController[] GetServiceControllers(string path)

@@ -41,6 +41,9 @@ namespace WhitelistExecuter.Lib
 
         [EnumMember]
         DEPLOY_SERVICES,
+
+        [EnumMember]
+        RECYCLE_APP_POOLS,
     }
 
     [DataContract]
